@@ -1,5 +1,6 @@
 import { Manifest } from "deno-slack-sdk/mod.ts";
 import MessagePostedWorkflow from "./workflows/message_posted.ts";
+import KeywordDatastore from "./datastores/keywords.ts";
 
 /**
  * The app manifest contains the app's configuration. This
@@ -11,6 +12,7 @@ export default Manifest({
   description: "Post the reversed version of a string to a selected channel",
   icon: "assets/default_new_app_icon.png",
   workflows: [MessagePostedWorkflow],
+  datastores: [KeywordDatastore],
   outgoingDomains: [],
   botScopes: [
     "commands", 
@@ -22,5 +24,7 @@ export default Manifest({
     "chat:write.public",
     "triggers:write",
     "triggers:read",
+    "datastore:read",
+    "datastore:write",
   ],
 });

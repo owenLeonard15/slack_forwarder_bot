@@ -1,6 +1,6 @@
-# Reverse String
+# forward String
 
-This automation demonstrates reversing a string.
+This automation demonstrates forwarding a string from one channel to the next.
 
 **Guide Outline**:
 
@@ -37,10 +37,10 @@ Start by cloning this repository:
 
 ```zsh
 # Clone this project onto your machine
-$ slack create reverse-string-app -t slack-samples/deno-reverse-string
+$ slack create forward-string-app -t slack-samples/deno-forward-string
 
 # Change into the project directory
-$ cd reverse-string-app
+$ cd forward-string-app
 ```
 
 ## Running Your Project Locally
@@ -100,7 +100,7 @@ or deployed!**
 To manually create a trigger, use the following command:
 
 ```zsh
-$ slack trigger create --trigger-def triggers/reverse_string.ts
+$ slack trigger create --trigger-def triggers/forward_string.ts
 ```
 
 ## Datastores
@@ -109,16 +109,6 @@ For storing data related to your app, datastores offer secure storage on Slack
 infrastructure. The use of a datastore requires the
 `datastore:write`/`datastore:read` scopes to be present in your manifest.
 
-## Testing
-
-For an example of how to test a function, see `functions/reverse_test.ts`. Test
-filenames should be suffixed with `_test`.
-
-Run all tests with `deno test`:
-
-```zsh
-$ deno test
-```
 
 ## Deploying Your App
 

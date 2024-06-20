@@ -41,7 +41,7 @@ const forwardStep = MessagePostedWorkflow.addStep(ForwardFunctionDefinition, {
 });
 
 MessagePostedWorkflow.addStep(Schema.slack.functions.SendMessage, {
-  channel_id: 'C078C83416X',
+  channel_id: forwardStep.outputs.channelToPost,
   message: forwardStep.outputs.stringToForward,
 });
 
