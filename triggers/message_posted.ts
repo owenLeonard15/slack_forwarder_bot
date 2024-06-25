@@ -2,13 +2,15 @@ import { Trigger } from "deno-slack-api/types.ts";
 import { TriggerEventTypes, TriggerTypes, TriggerContextData } from "deno-slack-api/mod.ts";
 import MessagePostedWorkflow from "../workflows/message_posted.ts";
 
+// Update Channel Id on new installs
+const SOURCE_CHANNEL = "";
+const BOT_CHANNEL = "";
 
 const trigger: Trigger<typeof MessagePostedWorkflow.definition> = {
   type: TriggerTypes.Event,
   event: {
     event_type: TriggerEventTypes.MessagePosted,
-    // Update Channel Id on new installs
-    channel_ids: ["C07853U2E94"],
+    channel_ids: [BOT_CHANNEL, SOURCE_CHANNEL],
     filter: {
       root: {
         operator: "AND",

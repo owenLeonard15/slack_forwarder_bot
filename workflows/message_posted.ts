@@ -15,7 +15,7 @@ const MessagePostedWorkflow = DefineWorkflow({
       message_ts: {
         type: Schema.slack.types.message_ts,
       },
-      channel: {
+      channel_id: {
         type: Schema.slack.types.channel_id,
       },
       text: {
@@ -26,18 +26,10 @@ const MessagePostedWorkflow = DefineWorkflow({
   },
 });
 
-// const forwardStep = MessagePostedWorkflow.addStep(ForwardFunctionDefinition, {
-//   messageToParse: MessagePostedWorkflow.inputs.text,
-// });
-
-// MessagePostedWorkflow.addStep(Schema.slack.functions.SendMessage, {
-//   channel_id: 'C078C83416X',
-//   message: forwardStep.outputs.messageToForward,
-// });
-
 
 const forwardStep = MessagePostedWorkflow.addStep(ForwardFunctionDefinition, {
   messageToParse: MessagePostedWorkflow.inputs.text,
+  sourceChannel: MessagePostedWorkflow.inputs.channel_id,
 });
 
 MessagePostedWorkflow.addStep(Schema.slack.functions.SendMessage, {
