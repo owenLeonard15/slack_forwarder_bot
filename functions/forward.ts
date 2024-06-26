@@ -1,5 +1,6 @@
 import { DefineFunction, Schema, SlackFunction } from "deno-slack-sdk/mod.ts";
 import KeywordDatastore from "../datastores/keywords.ts";
+
 /**
  * Functions are reusable building blocks of automation that accept
  * inputs, perform calculations, and provide outputs. Functions can
@@ -21,9 +22,17 @@ export const ForwardFunctionDefinition = DefineFunction({
         type: Schema.types.string,
         description: "The string to parse and forward",
       },
+      messageTS: {
+        type: Schema.types.string,
+        description: "The timestamp of the message",
+      },
       sourceChannel: {
         type: Schema.types.string,
         description: "The channel the message originated from",
+      },
+      sourceUser: {
+        type: Schema.types.string,
+        description: "The user who posted the message",
       },
     },
     required: ["messageToParse"],
@@ -39,7 +48,6 @@ export const ForwardFunctionDefinition = DefineFunction({
         description: "The channel to post the message to",
       },
     },
-    required: ["stringToForward"],
   },
 });
 
@@ -48,7 +56,10 @@ export default SlackFunction(
   async ({ inputs, client }) => {
     const inputMessage = inputs.messageToParse;
     const sourceChannel = inputs.sourceChannel;
-    console.log("\n SOURCE: ", sourceChannel)
+    const sourceUser = inputs.sourceUser;
+    console.log("\n SOURCE: ", sourceChannel);
+    console.log("\n USER: ", sourceUser);
+    console.log("\n MESSAGE: ", inputMessage)
     let stringToForward = "";
     let channelToPost = TARGET_CHANNEL;
     // if the first word is "add" then add the next word to the datastore
@@ -188,6 +199,7 @@ export default SlackFunction(
         channelToPost = TARGET_CHANNEL; // forward to a different channel
         stringToForward = inputMessage;
       } else {
+        console.log("No keywords found in message");
         stringToForward = "";
         channelToPost = BOT_CHANNEL;
       }
@@ -196,7 +208,13 @@ export default SlackFunction(
       stringToForward = "Invalid channel";
       channelToPost = BOT_CHANNEL;
     }
+    // if there is no string to forward, return an error
+    if (!stringToForward) {
+      return { outputs: "No string to forward" };
+    } else {
+      // retrieve full message using slack api 
 
+    }
     return {
       outputs: { stringToForward, channelToPost },
     };

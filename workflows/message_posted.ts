@@ -21,6 +21,9 @@ const MessagePostedWorkflow = DefineWorkflow({
       text: {
         type: Schema.types.string,
       },
+      user_id: {
+        type: Schema.slack.types.user_id,
+      },
     },
     required: ["text"],
   },
@@ -29,12 +32,22 @@ const MessagePostedWorkflow = DefineWorkflow({
 
 const forwardStep = MessagePostedWorkflow.addStep(ForwardFunctionDefinition, {
   messageToParse: MessagePostedWorkflow.inputs.text,
+  messageTS: MessagePostedWorkflow.inputs.message_ts,
   sourceChannel: MessagePostedWorkflow.inputs.channel_id,
+  sourceUser: MessagePostedWorkflow.inputs.user_id,
 });
 
-MessagePostedWorkflow.addStep(Schema.slack.functions.SendMessage, {
-  channel_id: forwardStep.outputs.channelToPost,
-  message: forwardStep.outputs.stringToForward,
-});
+try {
+  if (forwardStep.outputs.stringToForward === "") {
+    throw new Error("The string to forward is empty");
+  }
+  const sendMessage = MessagePostedWorkflow.addStep(Schema.slack.functions.SendMessage, {
+    channel_id: forwardStep.outputs.channelToPost,
+    message: forwardStep.outputs.stringToForward,
+  });
+} catch (e) {
+  console.error(e);
+}
+
 
 export default MessagePostedWorkflow;

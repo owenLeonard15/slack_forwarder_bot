@@ -8,7 +8,7 @@ import KeywordDatastore from "./datastores/keywords.ts";
  * https://api.slack.com/automation/manifest
  */
 export default Manifest({
-  name: "reverse-string-app",
+  name: "forward-bot",
   description: "Post the reversed version of a string to a selected channel",
   icon: "assets/default_new_app_icon.png",
   workflows: [MessagePostedWorkflow],

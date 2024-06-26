@@ -39,6 +39,9 @@ const trigger: Trigger<typeof MessagePostedWorkflow.definition> = {
     },
     text: {
       value: TriggerContextData.Event.MessagePosted.text,
+    }, 
+    user_id: {
+      value: TriggerContextData.Event.MessagePosted.user_id,
     }
   },
 };
