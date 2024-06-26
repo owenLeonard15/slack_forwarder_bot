@@ -56,8 +56,9 @@ export default SlackFunction(
     
     if (sourceChannel === BOT_CHANNEL) {
       if (firstWord === "add") {
-        const keyword = inputMessage.split(" ")[1];
-        // addKeywordToDatastore(keyword, client);
+        // const keyword = inputMessage.split(" ")[1];
+        // instead of taking the second word, take the entire message after the first word
+        const keyword = inputMessage.split(" ").slice(1).join(" ");
         const draftId = crypto.randomUUID();
 
         const putResp = await client.apps.datastore.put<typeof KeywordDatastore.definition>({
@@ -103,8 +104,8 @@ export default SlackFunction(
 
         stringToForward = `Keywords: ${allKeywords.join(", ")}`;
       } else if (firstWord === "delete") {
-        // if the first word is "delete" then delete the next word from the datastore
-        const keyword = inputMessage.split(" ")[1];
+        // if the first word is "delete" then delete the rest of the message from the datastore
+        const keyword = inputMessage.split(" ").slice(1).join(" ");
         let cursor = null;
         let ids_to_delete: string[] = [];
         do {
