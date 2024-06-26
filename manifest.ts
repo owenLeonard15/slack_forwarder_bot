@@ -16,6 +16,8 @@ export default Manifest({
   outgoingDomains: [],
   botScopes: [
     "commands", 
+    "groups:history",
+    "channels:history",
     "groups:write",
     "im:write",
     "im:history",
