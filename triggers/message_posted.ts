@@ -3,8 +3,8 @@ import { TriggerEventTypes, TriggerTypes, TriggerContextData } from "deno-slack-
 import MessagePostedWorkflow from "../workflows/message_posted.ts";
 
 // Update Channel Id on new installs
-const SOURCE_CHANNEL = "";
-const BOT_CHANNEL = "";
+const SOURCE_CHANNEL = "C07853U2E94";
+const BOT_CHANNEL = "C079K9ARN67";
 
 const trigger: Trigger<typeof MessagePostedWorkflow.definition> = {
   type: TriggerTypes.Event,

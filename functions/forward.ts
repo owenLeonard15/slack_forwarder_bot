@@ -7,9 +7,9 @@ import KeywordDatastore from "../datastores/keywords.ts";
  * be used independently or as steps in workflows.
  * https://api.slack.com/automation/functions/custom
  */
-const SOURCE_CHANNEL = "";
-const BOT_CHANNEL = "";
-const TARGET_CHANNEL = "";
+const SOURCE_CHANNEL = "C07853U2E94";
+const BOT_CHANNEL = "C079K9ARN67";
+const TARGET_CHANNEL = "C078C83416X";
 
 export const ForwardFunctionDefinition = DefineFunction({
   callback_id: "forward",
@@ -57,9 +57,11 @@ export default SlackFunction(
     const inputMessage = inputs.messageToParse;
     const sourceChannel = inputs.sourceChannel;
     const sourceUser = inputs.sourceUser;
+    const messageTS = inputs.messageTS;
     console.log("\n SOURCE: ", sourceChannel);
     console.log("\n USER: ", sourceUser);
     console.log("\n MESSAGE: ", inputMessage)
+    console.log("\n MESSAGE TS: ", messageTS)
     let stringToForward = "";
     let channelToPost = TARGET_CHANNEL;
     // if the first word is "add" then add the next word to the datastore
@@ -168,8 +170,18 @@ export default SlackFunction(
       channelToPost = BOT_CHANNEL;
     }
     else if (sourceChannel === SOURCE_CHANNEL){
+      // retrieve the full message using slack api
+      const message = await retrieveMessage(sourceChannel, messageTS, client);
+      if (!message) {
+        return { error: "Error retrieving message" };
+      }
+      
+      // get the text of the message
+      const messageText = message.text;
+      // get the blocks of the message
+      const messageBlocks = message.blocks;
       // check if the message contains any keywords and forward the entire message if it does
-      const words: string[] = inputMessage.split(" ");
+      const words: string[] = messageText.split(" ");
       let cursor = null;
       let allKeywords: string[] = [];
       do {
@@ -194,10 +206,18 @@ export default SlackFunction(
 
       console.log("all keywords: \n", allKeywords);
 
-      const containsKeyword = words.some((word: string) => allKeywords.includes(word));
-      if(containsKeyword){
-        channelToPost = TARGET_CHANNEL; // forward to a different channel
-        stringToForward = inputMessage;
+      const textContainsKeyword = words.some((word: string) => allKeywords.includes(word));
+      const blocksContainKeyword = checkBlocksForKeywords(messageBlocks, allKeywords);
+      if(textContainsKeyword || blocksContainKeyword){
+        // Forward the message to the target channel
+        await client.chat.postMessage({
+          channel: TARGET_CHANNEL,
+          text: message.text,
+          blocks: message.blocks
+        });
+
+        console.log('Message forwarded successfully.');
+
       } else {
         console.log("No keywords found in message");
         stringToForward = "";
@@ -220,3 +240,50 @@ export default SlackFunction(
     };
   },
 );
+
+async function retrieveMessage(messageDetails, messageTS, client) {
+  try {
+    // Call the conversations.history method using the WebClient
+    const result = await client.conversations.history({
+      channel: messageDetails,
+      oldest: messageTS,
+      limit: 1,
+      inclusive: true
+    });
+
+    // Check if the message was found
+    if (result.messages && result.messages.length > 0) {
+      const message = result.messages[0];
+      console.log('Message retrieved:', message);
+      return message;
+    } else {
+      console.log('No message found with the given timestamp.');
+      return "";
+    }
+  } catch (error) {
+    console.error('Error retrieving message:', error);
+  }
+}
+
+// Function to check if any block contains keywords
+function checkBlocksForKeywords(blocks: any[], keywords: string[]): boolean {
+  for (const block of blocks) {
+    if (block.type === 'rich_text') {
+      for (const element of block.elements) {
+        if (element.type === 'rich_text_section') {
+          for (const subElement of element.elements) {
+            if (subElement.type === 'text' && containsKeywords(subElement.text, keywords)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
+// Function to check if any text contains keywords
+function containsKeywords(text: string, keywords: string[]): boolean {
+  return keywords.some(keyword => text.includes(keyword));
+}

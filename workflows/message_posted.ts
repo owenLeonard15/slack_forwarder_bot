@@ -37,17 +37,11 @@ const forwardStep = MessagePostedWorkflow.addStep(ForwardFunctionDefinition, {
   sourceUser: MessagePostedWorkflow.inputs.user_id,
 });
 
-try {
-  if (forwardStep.outputs.stringToForward === "") {
-    throw new Error("The string to forward is empty");
-  }
-  const sendMessage = MessagePostedWorkflow.addStep(Schema.slack.functions.SendMessage, {
-    channel_id: forwardStep.outputs.channelToPost,
-    message: forwardStep.outputs.stringToForward,
-  });
-} catch (e) {
-  console.error(e);
-}
+
+const sendMessage = MessagePostedWorkflow.addStep(Schema.slack.functions.SendMessage, {
+  channel_id: forwardStep.outputs.channelToPost,
+  message: forwardStep.outputs.stringToForward,
+});
 
 
 export default MessagePostedWorkflow;
