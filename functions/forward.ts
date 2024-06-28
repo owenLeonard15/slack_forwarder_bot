@@ -267,16 +267,20 @@ async function retrieveMessage(messageDetails, messageTS, client) {
 
 // Function to check if any block contains keywords
 function checkBlocksForKeywords(blocks: any[], keywords: string[]): boolean {
+  const keywordRegexes = keywords.map(keyword => new RegExp(`\\b${keyword}\\b`, 'i'));
+
   for (const block of blocks) {
-    if (block.type === 'rich_text') {
-      for (const element of block.elements) {
-        if (element.type === 'rich_text_section') {
-          for (const subElement of element.elements) {
-            if (subElement.type === 'text' && containsKeywords(subElement.text, keywords)) {
-              return true;
-            }
+    if (block.type === 'section' && block.fields) {
+      for (const field of block.fields) {
+        if (field.type === 'mrkdwn' && field.text) {
+          if (keywordRegexes.some(regex => regex.test(field.text))) {
+            return true;
           }
         }
+      }
+    } else if (block.type === 'section' && block.text && block.text.text) {
+      if (keywordRegexes.some(regex => regex.test(block.text.text))) {
+        return true;
       }
     }
   }
@@ -287,3 +291,5 @@ function checkBlocksForKeywords(blocks: any[], keywords: string[]): boolean {
 function containsKeywords(text: string, keywords: string[]): boolean {
   return keywords.some(keyword => text.includes(keyword));
 }
+
+
